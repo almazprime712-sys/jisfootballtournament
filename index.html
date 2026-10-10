@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10231b">
+  <meta name="description" content="Состав команды на футбольном поле. Добавляйте игроков, номера и позиции.">
+  <title>Состав команды</title>
+  <style>
+    :root { color-scheme: light; --page:#edf1e9; --panel:#fffef9; --ink:#16241e; --muted:#69766d; --line:#d8e0d6; --field-a:#397e53; --field-b:#34764d; --chalk:rgba(238,250,232,.63); --gold:#e4c57e; --card:#182a23; --card-ink:#fbf7e9; --card-muted:#c4d1c6; --shadow:0 18px 55px rgba(24,50,34,.14); }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { min-width:320px; margin:0; background:radial-gradient(ellipse at 50% 72%,rgba(58,150,76,.33),transparent 45%),radial-gradient(ellipse at 14% 3%,rgba(70,136,178,.25),transparent 32%),linear-gradient(160deg,#0c1725 0%,#182b3c 48%,#091b17 100%); color:var(--ink); font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; transition:background .25s,color .25s; }
+    body:before { position:fixed; z-index:0; inset:0; content:""; pointer-events:none; opacity:.2; background:linear-gradient(90deg,transparent 6.8%,rgba(235,255,239,.3) 6.9%,transparent 7.05%,transparent 92.95%,rgba(235,255,239,.3) 93.1%,transparent 93.2%),linear-gradient(0deg,transparent 6.8%,rgba(235,255,239,.25) 6.9%,transparent 7.05%,transparent 92.95%,rgba(235,255,239,.25) 93.1%,transparent 93.2%),linear-gradient(0deg,transparent calc(50% - 1px),rgba(235,255,239,.25) 50%,transparent calc(50% + 1px)),radial-gradient(circle at 50% 50%,transparent 0 145px,rgba(235,255,239,.24) 146px 147px,transparent 148px); }
+    body:after { position:fixed; z-index:0; top:2%; left:0; width:100%; height:20vh; content:""; pointer-events:none; opacity:.7; background:radial-gradient(ellipse at 10% 12%,rgba(242,255,220,.7),transparent 15%),radial-gradient(ellipse at 90% 12%,rgba(242,255,220,.68),transparent 15%),repeating-linear-gradient(90deg,transparent 0 13px,rgba(245,255,224,.18) 14px 16px,transparent 17px 23px); mask-image:linear-gradient(90deg,transparent,black 8%,black 92%,transparent); }
+    .stadium-art { position:fixed; z-index:0; inset:0; overflow:hidden; pointer-events:none; opacity:.52; }
+    .stadium-art svg { display:block; width:100%; height:100%; }
+    html[data-theme="dark"] body { background:radial-gradient(ellipse at 50% 72%,rgba(36,109,55,.24),transparent 45%),linear-gradient(160deg,#07111d 0%,#101f2c 48%,#06130f 100%); }
+    html[data-theme="dark"] body:before { opacity:.14; }
+    html[data-theme="dark"] body:after { opacity:.46; }
+    html[data-theme="dark"] .stadium-art { opacity:.43; }
+    html[data-theme="dark"] { color-scheme:dark; --page:#0b1511; --panel:#131f19; --ink:#f2f4ec; --muted:#a0afa3; --line:#293930; --field-a:#1e5239; --field-b:#194a33; --chalk:rgba(234,249,231,.65); --card:#f0e8d2; --card-ink:#1a2920; --card-muted:#526459; --shadow:0 18px 55px rgba(0,0,0,.32); }
+    button,input,select { font:inherit; }
+    button { color:inherit; }
+    .page { position:relative; z-index:1; width:min(1120px,calc(100% - 36px)); margin:0 auto; padding:26px 0 36px; }
+    .topbar { display:flex; justify-content:space-between; align-items:center; gap:18px; margin-bottom:30px; }
+    .page-mark { display:flex; align-items:center; gap:11px; color:#f4f8f2; font-size:11px; font-weight:900; letter-spacing:.16em; text-transform:uppercase; text-shadow:0 2px 12px rgba(0,0,0,.38); }
+    .mark-ball { display:grid; place-items:center; width:35px; height:35px; border:1px solid var(--line); border-radius:50%; background:var(--panel); font-size:17px; letter-spacing:0; }
+    .controls { display:flex; align-items:center; gap:10px; }
+    .language-switch { display:flex; gap:2px; padding:3px; border:1px solid var(--line); border-radius:999px; background:var(--panel); }
+    .lang-option,.theme-switch { border:0; background:transparent; color:var(--muted); cursor:pointer; font-size:11px; font-weight:800; }
+    .lang-option { min-width:34px; padding:7px 8px; border-radius:999px; }
+    .lang-option[aria-pressed="true"] { background:var(--ink); color:var(--page); }
+    .theme-switch { display:flex; align-items:center; gap:8px; padding:9px 12px; border:1px solid var(--line); border-radius:999px; background:var(--panel); color:var(--ink); }
+    .intro { display:flex; justify-content:space-between; align-items:end; gap:20px; margin-bottom:23px; }
+    .intro h1 { margin:0; color:#f4f8f2; font-size:clamp(30px,5vw,48px); font-weight:850; letter-spacing:-.065em; line-height:1; text-shadow:0 3px 24px rgba(0,0,0,.35); }
+    .intro p { max-width:450px; margin:0 0 3px; color:rgba(241,248,239,.82); font-size:14px; line-height:1.6; text-shadow:0 2px 12px rgba(0,0,0,.4); }
+    .organizer-strip { display:flex; justify-content:space-between; align-items:center; gap:14px; margin:-5px 0 18px; padding:12px 16px; border:1px solid var(--line); border-radius:13px; background:var(--panel); }
+    .organizer-strip .small-label { margin:0 0 5px; }
+    .organizer-partner { display:flex; align-items:center; gap:11px; }
+    .organizer-partner strong { font-size:14px; font-weight:850; }
+    .organizer-x { color:var(--muted); font-family:Georgia,serif; font-size:21px; }
+    .jis-logo { width:40px; height:40px; border-radius:8px; object-fit:cover; box-shadow:0 2px 8px rgba(0,0,0,.12); }
+    .organizer-school { margin-top:3px; color:var(--muted); font-size:10px; font-weight:700; }
+    .team-panel { margin-bottom:18px; padding:15px 17px 16px; border:1px solid var(--line); border-radius:16px; background:var(--panel); box-shadow:0 6px 22px rgba(26,54,36,.035); }
+    .small-label { display:block; margin:0 0 11px; color:var(--muted); font-size:10px; font-weight:850; letter-spacing:.13em; text-transform:uppercase; }
+    .team-picker { display:flex; gap:8px; overflow-x:auto; scrollbar-width:thin; padding:0 0 2px; }
+    .team-option { flex:0 0 auto; padding:10px 14px; border:1px solid var(--line); border-radius:10px; background:transparent; color:var(--muted); cursor:pointer; font-size:12px; font-weight:780; transition:background .18s,border-color .18s,color .18s,transform .18s; }
+    .team-option:hover { transform:translateY(-1px); border-color:#8aa18d; }
+    .team-option[aria-pressed="true"] { border-color:#254d35; background:#214c34; color:#fff; }
+    .field-shell { overflow:hidden; border:1px solid var(--line); border-radius:19px; background:var(--panel); box-shadow:var(--shadow); }
+    .field-head { display:flex; justify-content:space-between; align-items:center; gap:14px; padding:18px 20px; }
+    .field-team { font-size:17px; font-weight:850; letter-spacing:-.025em; }
+    .field-count { color:var(--muted); font-size:12px; font-weight:750; white-space:nowrap; }
+    .field-hint { margin:0; padding:0 20px 16px; color:var(--muted); font-size:12px; line-height:1.5; }
+    .football-field { position:relative; isolation:isolate; min-height:710px; overflow:hidden; background:repeating-linear-gradient(0deg,var(--field-a) 0 100px,var(--field-b) 100px 200px); }
+    .football-field:before { position:absolute; z-index:0; inset:0; content:""; pointer-events:none; background:radial-gradient(ellipse at 50% 42%,rgba(255,255,255,.12),transparent 54%),linear-gradient(90deg,rgba(6,24,15,.13),transparent 16%,transparent 84%,rgba(6,24,15,.13)); }
+    .field-lines { position:absolute; z-index:0; inset:0; width:100%; height:100%; pointer-events:none; }
+    .field-lines path,.field-lines rect,.field-lines circle { fill:none; stroke:var(--chalk); stroke-width:1.4; vector-effect:non-scaling-stroke; }
+    .field-lines .spot-fill { fill:var(--chalk); stroke:none; }
+    .position-cells { position:absolute; z-index:2; inset:0; pointer-events:none; }
+    .position-player { position:absolute; left:50%; top:50%; display:flex; width:clamp(82px,12vw,116px); height:132px; flex-direction:column; align-items:center; justify-content:space-between; padding:9px 8px 10px; overflow:hidden; transform:translate(-50%,-50%); border:2px solid rgba(255,255,255,.85); border-radius:13px; background:linear-gradient(155deg,#fff19b 0%,#f6c551 46%,#d88b25 100%); color:#1b281a; box-shadow:0 0 0 2px rgba(255,255,255,.18),0 8px 24px rgba(0,0,0,.42),0 0 20px rgba(255,205,71,.32); cursor:pointer; pointer-events:auto; text-align:center; transition:filter .18s,box-shadow .18s; }
+    .position-player:before { position:absolute; inset:4px; border:1px solid rgba(65,54,18,.45); border-radius:8px; content:""; pointer-events:none; }
+    .position-player:hover,.position-player:focus-visible { filter:brightness(1.09); box-shadow:0 0 0 3px rgba(218,255,119,.55),0 10px 28px rgba(0,0,0,.48); }
+    .position-player[data-position="GK"] { background:linear-gradient(155deg,#fff8ad 0%,#ffd434 48%,#f09b21 100%); }
+    .position-player[data-position="CB"] { background:linear-gradient(155deg,#d7fbff 0%,#77d7ea 46%,#2b9cbd 100%); }
+    .position-player[data-position="CM"] { background:linear-gradient(155deg,#efffb2 0%,#a8ec54 46%,#57b545 100%); }
+    .position-player[data-position="ST"] { background:linear-gradient(155deg,#ffe0c7 0%,#ff9c6a 46%,#eb5275 100%); }
+    .card-top { position:relative; z-index:1; display:flex; width:100%; justify-content:space-between; align-items:center; font-size:9px; font-weight:900; letter-spacing:.08em; }
+    .card-position { padding:3px 5px; border-radius:4px; background:rgba(35,49,38,.12); }
+    .card-number { position:relative; z-index:1; margin:-3px 0 -5px; font-family:Georgia,"Times New Roman",serif; font-size:clamp(31px,5.4vw,47px); line-height:1; font-weight:900; letter-spacing:-.08em; text-shadow:0 2px rgba(255,255,255,.42); }
+    .card-name { position:relative; z-index:1; max-width:100%; overflow:hidden; font-size:clamp(10px,1.6vw,14px); font-weight:950; line-height:1.15; text-overflow:ellipsis; white-space:nowrap; }
+    .card-role { position:relative; z-index:1; max-width:100%; color:#344b3d; font-size:8px; font-weight:850; letter-spacing:.04em; line-height:1.1; text-transform:uppercase; }
+    .position-player.compact-player { width:clamp(58px,9vw,86px); height:104px; padding:6px 4px; }
+    .position-player.compact-player-small { width:clamp(48px,7vw,66px); height:90px; padding:5px 3px; }
+    .position-player.compact-player .card-number { font-size:34px; }
+    .position-player.compact-player-small .card-number { font-size:29px; }
+    .card-captain { color:#8a4519; font-size:10px; }
+    .add-card { justify-content:center; gap:8px; border-style:dashed; border-color:#d9ff87; background:linear-gradient(145deg,rgba(24,84,47,.96),rgba(12,51,33,.96)); color:#f4ffd6; box-shadow:0 0 0 2px rgba(182,255,94,.14),0 7px 22px rgba(0,0,0,.35); }
+    .add-card:before { border-color:rgba(223,255,173,.58); }
+    .add-symbol { display:grid; place-items:center; width:34px; height:34px; border:1px solid #d9ff87; border-radius:50%; color:#d9ff87; font-size:25px; font-weight:400; line-height:1; box-shadow:0 0 14px rgba(217,255,135,.18); }
+    .add-label { font-size:10px; font-weight:850; }
+    .position-add { position:absolute; z-index:3; display:grid; place-items:center; width:42px; height:42px; padding:0; transform:translate(-50%,-50%); border:2px solid #e8ffb4; border-radius:50%; background:#bbf257; color:#153421; font-size:28px; font-weight:500; line-height:1; box-shadow:0 0 0 4px rgba(187,242,87,.18),0 6px 16px rgba(0,0,0,.4); cursor:pointer; pointer-events:auto; transition:filter .18s,box-shadow .18s; }
+    .position-add:hover,.position-add:focus-visible { filter:brightness(1.15); box-shadow:0 0 0 6px rgba(187,242,87,.25),0 8px 20px rgba(0,0,0,.48); }
+    .position-add:before { display:none; }
+    .roster-foot { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:14px 20px; color:var(--muted); font-size:11px; line-height:1.5; }
+    .roster-status { margin:0; }
+    .manage-toggle,.editor-button { min-height:39px; padding:9px 14px; border:1px solid var(--line); border-radius:9px; background:var(--panel); color:var(--ink); cursor:pointer; font-size:12px; font-weight:800; }
+    .manage-toggle:hover,.editor-button:hover { border-color:#698b71; }
+    .roster-editor { margin-top:18px; padding:22px; border:1px solid var(--line); border-radius:15px; background:var(--panel); box-shadow:var(--shadow); }
+    .roster-editor[hidden],.editor-form[hidden] { display:none; }
+    .editor-form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+    .editor-title { grid-column:1/-1; display:flex; justify-content:space-between; align-items:center; gap:10px; margin:0 0 3px; font-size:20px; letter-spacing:-.03em; }
+    .editor-close { border:0; background:transparent; color:var(--muted); cursor:pointer; font-size:24px; line-height:1; }
+    .editor-field { display:grid; gap:7px; color:var(--muted); font-size:10px; font-weight:850; letter-spacing:.1em; text-transform:uppercase; }
+    .editor-field input,.editor-field select { width:100%; min-height:46px; padding:10px 12px; border:1px solid var(--line); border-radius:9px; outline:none; background:var(--page); color:var(--ink); font-size:15px; letter-spacing:normal; text-transform:none; }
+    .editor-field input:focus,.editor-field select:focus { border-color:#739579; box-shadow:0 0 0 3px rgba(94,139,101,.15); }
+    .editor-check { display:flex; align-items:center; gap:8px; color:var(--ink); font-size:12px; font-weight:700; }
+    .editor-actions { display:flex; flex-wrap:wrap; gap:9px; grid-column:1/-1; }
+    .editor-save { border-color:#214c34; background:#214c34; color:white; }
+    .editor-delete { color:#a23a32; }
+    .editor-message { grid-column:1/-1; min-height:18px; margin:0; color:var(--muted); font-size:12px; line-height:1.5; }
+    .fixtures-section { margin-top:32px; }
+    .fixtures-heading { display:flex; justify-content:space-between; align-items:end; gap:16px; margin-bottom:14px; }
+    .fixtures-heading h2 { margin:0; color:#f4f8f2; font-size:clamp(22px,3.5vw,30px); letter-spacing:-.045em; text-shadow:0 3px 24px rgba(0,0,0,.35); }
+    .fixtures-heading p { margin:0; color:rgba(241,248,239,.82); font-size:12px; line-height:1.5; text-shadow:0 2px 12px rgba(0,0,0,.4); }
+    .match-editor { display:grid; grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr) minmax(145px,.72fr) auto; align-items:end; gap:9px; margin:0 0 12px; padding:13px; border:1px solid var(--line); border-radius:13px; background:var(--panel); box-shadow:0 8px 24px rgba(0,0,0,.1); }
+    .match-field { display:grid; min-width:0; gap:6px; color:var(--muted); font-size:9px; font-weight:850; letter-spacing:.08em; text-transform:uppercase; }
+    .match-field select,.match-field input { width:100%; min-width:0; min-height:40px; padding:8px 10px; border:1px solid var(--line); border-radius:8px; background:var(--page); color:var(--ink); font-size:12px; font-weight:700; letter-spacing:normal; text-transform:none; }
+    .match-vs { align-self:center; margin-top:18px; color:var(--muted); font-size:9px; font-weight:950; text-align:center; }
+    .match-add { min-height:40px; padding:9px 12px; border:1px solid #a4d544; border-radius:8px; background:linear-gradient(145deg,#eaff9c,#a8eb53); color:#18311f; cursor:pointer; font-size:11px; font-weight:900; white-space:nowrap; }
+    .match-add:hover { filter:brightness(1.04); }
+    .match-status { grid-column:1/-1; min-height:14px; margin:0; color:var(--muted); font-size:10px; line-height:1.4; }
+    .fixtures-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+    .fixture-empty { grid-column:1/-1; padding:17px; border:1px dashed var(--line); border-radius:12px; background:var(--panel); color:var(--muted); font-size:12px; text-align:center; }
+    .fixture-card { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:14px; min-width:0; padding:14px; border:1px solid var(--line); border-radius:13px; background:var(--panel); }
+    .fixture-team { display:flex; min-width:0; align-items:center; gap:11px; }
+    .fixture-number { display:grid; flex:0 0 34px; place-items:center; width:34px; height:34px; border-radius:10px; background:var(--page); color:var(--muted); font-size:11px; font-weight:850; }
+    .fixture-matchup { display:grid; min-width:0; flex:1; grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr); align-items:center; gap:7px; }
+    .fixture-club { min-width:0; }
+    .fixture-club h3 { overflow:hidden; margin:3px 0 0; font-size:12px; font-weight:850; text-overflow:ellipsis; white-space:nowrap; }
+    .fixture-home { text-align:right; }
+    .fixture-vs { display:grid; place-items:center; width:28px; height:28px; border-radius:50%; background:linear-gradient(145deg,#eaff9c,#a8eb53); color:#18311f; font-size:8px; font-weight:950; box-shadow:0 2px 9px rgba(107,171,69,.22); }
+    .fixture-side-label { color:var(--muted); font-size:8px; font-weight:850; letter-spacing:.08em; text-transform:uppercase; }
+    .fixture-state { display:block; margin-top:3px; color:var(--muted); font-size:10px; }
+    .fixture-tools { display:flex; flex-wrap:wrap; justify-content:flex-end; align-items:center; gap:7px; }
+    .date-picker,.calendar-add,.remove-date { position:relative; display:inline-flex; min-height:34px; align-items:center; justify-content:center; gap:5px; padding:7px 10px; border:1px solid var(--line); border-radius:8px; background:var(--panel); color:var(--ink); cursor:pointer; font-size:10px; font-weight:780; white-space:nowrap; }
+    .date-picker:hover,.calendar-add:hover,.remove-date:hover { border-color:#78927d; }
+    .date-picker input { position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; }
+    .calendar-add { background:#214c34; border-color:#214c34; color:white; }
+    .remove-date { color:#a23a32; }
+    .remove-match { position:relative; display:inline-flex; min-height:34px; align-items:center; justify-content:center; gap:5px; padding:7px 10px; border:1px solid rgba(196,66,58,.3); border-radius:8px; background:var(--panel); color:#a23a32; cursor:pointer; font-size:10px; font-weight:780; white-space:nowrap; }
+    .remove-match:hover { border-color:#a23a32; background:rgba(196,66,58,.06); }
+    .calendar-add[hidden],.remove-date[hidden] { display:none; }
+    .fixtures-note { margin:11px 0 0; color:var(--muted); font-size:10px; line-height:1.5; }
+    .visually-hidden { position:absolute!important; width:1px!important; height:1px!important; overflow:hidden!important; clip:rect(0,0,0,0)!important; white-space:nowrap!important; }
+    @media (max-width:640px) {
+      .page { width:min(100% - 22px,560px); padding-top:14px; }
+      .topbar { margin-bottom:22px; }.page-mark { font-size:9px; gap:7px; }.mark-ball { width:30px; height:30px; font-size:15px; }
+      .controls { gap:6px; }.theme-switch { gap:5px; padding:8px 9px; font-size:10px; }
+      .intro { display:block; margin-bottom:16px; }.intro h1 { font-size:34px; }.intro p { margin-top:8px; font-size:12px; }
+      .organizer-strip { margin-top:0; margin-bottom:12px; padding:10px 12px; }.organizer-partner { gap:8px; }.organizer-partner strong { font-size:11px; }.jis-logo { width:34px; height:34px; }.organizer-school { font-size:9px; }
+      .team-panel { margin-bottom:11px; padding:12px; border-radius:13px; }.small-label { font-size:9px; }
+      .team-picker { gap:6px; }.team-option { padding:9px 11px; font-size:10px; }
+      .field-shell { border-radius:14px; }.field-head { padding:14px 13px; }.field-team { font-size:15px; }.field-count { font-size:10px; }
+      .field-hint { padding:0 13px 12px; font-size:10px; }
+      .football-field { min-height:630px; }
+      .position-player { width:clamp(66px,19vw,84px); height:107px; padding:7px 5px; border-radius:9px; }
+      .position-player:before { inset:3px; border-radius:6px; }.card-top { font-size:7px; }.card-position { padding:2px 4px; }
+      .card-number { font-size:34px; }.card-name { font-size:10px; }.card-role { font-size:6px; }.add-symbol { width:25px; height:25px; font-size:20px; }.add-label { font-size:8px; }
+      .position-add { width:34px; height:34px; font-size:23px; }
+      .roster-foot { align-items:flex-start; flex-direction:column; gap:8px; padding:12px 13px; font-size:10px; }
+      .roster-editor { margin-top:12px; padding:15px; }.editor-form { grid-template-columns:1fr; gap:11px; }.editor-title { font-size:18px; }.editor-actions { grid-column:1; }.editor-message { grid-column:1; }
+      .fixtures-section { margin-top:23px; }.fixtures-heading { display:block; margin-bottom:10px; }.fixtures-heading h2 { font-size:23px; }.fixtures-heading p { margin-top:4px; font-size:10px; }.match-editor { grid-template-columns:minmax(0,1fr) 25px minmax(0,1fr); gap:8px; padding:10px; }.match-field-date { grid-column:1/3; }.match-add { grid-column:3; width:100%; padding-inline:6px; font-size:10px; }.match-status { grid-column:1/-1; }.fixtures-grid { grid-template-columns:1fr; gap:7px; }.fixture-card { grid-template-columns:minmax(0,1fr); gap:10px; padding:11px; }.fixture-team { gap:9px; }.fixture-matchup { gap:6px; }.fixture-club h3 { font-size:12px; }.fixture-side-label { font-size:7px; }.fixture-tools { justify-content:flex-start; }.date-picker,.calendar-add,.remove-date,.remove-match { min-height:32px; padding:6px 9px; font-size:9px; }
+    }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto!important; transition-duration:.01ms!important; } }
+  </style>
+</head>
+<body>
+  <div class="stadium-art" aria-hidden="true">
+    <svg viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" focusable="false">
+      <defs>
+        <linearGradient id="stadiumTurf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b8a50" stop-opacity="0"/><stop offset="1" stop-color="#48bb5b" stop-opacity=".7"/></linearGradient>
+        <radialGradient id="stadiumGlow"><stop stop-color="#eaffbd" stop-opacity=".85"/><stop offset="1" stop-color="#d9ff9a" stop-opacity="0"/></radialGradient>
+        <pattern id="goalNet" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M0 0L24 24M24 0L0 24" fill="none" stroke="#e5f5e8" stroke-opacity=".5" stroke-width="1"/></pattern>
+      </defs>
+      <path d="M0 94Q800-84 1600 94V390Q800 280 0 390Z" fill="#050d15" fill-opacity=".45"/>
+      <g fill="none" stroke="#b7d1d4" stroke-opacity=".13"><path d="M0 135Q800-7 1600 135M0 184Q800 42 1600 184M0 230Q800 93 1600 230M0 272Q800 143 1600 272"/><path d="M0 310Q800 194 1600 310M0 344Q800 239 1600 344"/></g>
+      <g fill="#f4ffd0"><circle cx="115" cy="112" r="4"/><circle cx="150" cy="105" r="4"/><circle cx="185" cy="99" r="4"/><circle cx="220" cy="94" r="4"/><circle cx="255" cy="89" r="4"/><circle cx="1345" cy="89" r="4"/><circle cx="1380" cy="94" r="4"/><circle cx="1415" cy="99" r="4"/><circle cx="1450" cy="105" r="4"/><circle cx="1485" cy="112" r="4"/></g>
+      <ellipse cx="165" cy="142" rx="210" ry="130" fill="url(#stadiumGlow)" opacity=".34"/><ellipse cx="1435" cy="142" rx="210" ry="130" fill="url(#stadiumGlow)" opacity=".34"/>
+      <path d="M0 655Q800 500 1600 655V1000H0Z" fill="url(#stadiumTurf)"/>
+      <g fill="none" stroke="#efffe7" stroke-opacity=".2" stroke-width="3"><path d="M0 755Q800 600 1600 755M0 920Q800 780 1600 920"/><path d="M800 620V1000"/><ellipse cx="800" cy="835" rx="170" ry="92"/></g>
+      <g transform="translate(1220 452)" fill="url(#goalNet)" stroke="#e4f5ec" stroke-opacity=".65" stroke-width="7"><path d="M0 0H300V260H0Z"/><path d="M0 0L-46 39V292M300 0L343 39V292M-46 39H343" fill="none"/><path d="M0 260L-46 292H343L300 260" fill="none"/></g>
+      <g transform="translate(130 515)" opacity=".78"><circle cx="55" cy="0" r="27" fill="#e9f8df"/><path d="M37 31L82 30L111 125L77 139L57 88L28 141L0 124L25 56Z" fill="#d9fc81"/><path d="M33 139L71 145L49 226L17 279L-6 260L19 206Z M72 141L102 125L143 183L128 211L91 187L63 239L40 225Z" fill="#ecf4ec"/><path d="M26 55L-12 95L-50 121L-63 101L-21 59L4 31Z M80 45L117 65L147 105L128 119L94 88L70 75Z" fill="#e9f8df"/><path d="M-8 257L18 270L3 291L-29 291Z M127 205L151 209L162 228L127 226Z" fill="#f6fcf0"/></g>
+      <g transform="translate(1430 572) scale(.82)" opacity=".7"><circle cx="44" cy="0" r="24" fill="#f4f7ed"/><path d="M28 29L68 27L88 108L54 124L42 75L19 127L-8 113L14 52Z" fill="#f45d5d"/><path d="M15 121L47 128L32 198L4 245L-19 229L9 184Z M54 121L83 107L116 155L100 180L70 158L50 209L29 199Z" fill="#e6f0e8"/><path d="M17 51L-18 80L-48 108L-62 89L-29 46L-1 30Z M67 43L104 52L139 85L120 100L87 78L57 69Z" fill="#f1f5eb"/></g>
+      <g transform="translate(110 846) rotate(-16)"><circle r="57" fill="#f6f5eb" stroke="#1b2931" stroke-opacity=".8" stroke-width="5"/><path d="M-18-12L0-39L25-28L25-1L4 11ZM24 28L8 12L-13 21L-18 43L4 53ZM-38 4L-55-4L-48-27L-24-31L-17-12Z" fill="#18344d" stroke="#c92235" stroke-width="3"/><path d="M-18-12L-38 4M4 11L24 28M4 11L24-1" fill="none" stroke="#18344d" stroke-width="4"/></g>
+      <g transform="translate(1490 845) scale(.72)"><circle r="56" fill="#f5f5eb" stroke="#1b2931" stroke-opacity=".8" stroke-width="5"/><path d="M-18-12L0-39L25-28L25-1L4 11ZM24 28L8 12L-13 21L-18 43L4 53ZM-38 4L-55-4L-48-27L-24-31L-17-12Z" fill="#18344d" stroke="#c92235" stroke-width="3"/><path d="M-18-12L-38 4M4 11L24 28M4 11L24-1" fill="none" stroke="#18344d" stroke-width="4"/></g>
+    </svg>
+  </div>
+  <div class="page">
+    <header class="topbar">
+      <div class="page-mark"><span class="mark-ball" aria-hidden="true">⚽</span></div>
+      <div class="controls">
+        <div class="language-switch" role="group" aria-label="Язык сайта" data-i18n-aria="languageLabel">
+          <button class="lang-option" type="button" data-language="ru" aria-pressed="true">RU</button>
+          <button class="lang-option" type="button" data-language="uz" aria-pressed="false">UZ</button>
+          <button class="lang-option" type="button" data-language="en" aria-pressed="false">EN</button>
+        </div>
+        <button class="theme-switch" id="themeToggle" type="button" aria-label="Сменить тему" data-i18n-aria="themeAria"><span aria-hidden="true">◐</span><span id="themeLabel">Тёмная тема</span></button>
+      </div>
+    </header>
+
+    <main>
+      <section class="intro">
+        <h1 data-i18n="heading">Состав на поле</h1>
+        <p data-i18n="intro">Выберите команду. Чтобы добавить игрока, нажмите карточку с плюсом на нужной позиции.</p>
+      </section>
+
+      <aside class="organizer-strip" aria-label="Организатор турнира" data-i18n-aria="organizerLabel">
+        <div>
+          <span class="small-label" data-i18n="organizerLabel">Организатор турнира</span>
+          <div class="organizer-partner"><strong>Alpomish Tukhtaev</strong><span class="organizer-x" aria-hidden="true">×</span><img class="jis-logo" src="data:image/png;base64,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" alt="JIS International School" data-i18n-alt="schoolLogoAlt"></div>
+          <div class="organizer-school" data-i18n="schoolName">JIS International School</div>
+        </div>
+      </aside>
+
+      <section class="team-panel" aria-labelledby="team-picker-title">
+        <span class="small-label" id="team-picker-title" data-i18n="chooseTeam">Выберите команду</span>
+        <div class="team-picker" id="teamPicker" role="group" aria-label="Команды турнира" data-i18n-aria="chooseTeam"></div>
+      </section>
+
+      <section class="field-shell" aria-label="Состав команды">
+        <div class="field-head"><span class="field-team" id="activeTeamName">Команда</span><span class="field-count" id="fieldCount">5 игроков</span></div>
+        <p class="field-hint" data-i18n="fieldHint">Нажмите карточку с плюсом, заполните имя и номер, выберите позицию — и сохраните.</p>
+        <div class="football-field" role="group" aria-label="Схема состава команды" data-i18n-aria="fieldAria">
+          <svg class="field-lines" viewBox="0 0 600 800" preserveAspectRatio="none" aria-hidden="true">
+            <rect x="19" y="19" width="562" height="762" rx="4" />
+            <path d="M19 400h562" />
+            <circle cx="300" cy="400" r="86" />
+            <circle class="spot-fill" cx="300" cy="400" r="3" />
+            <rect x="140" y="19" width="320" height="120" />
+            <rect x="198" y="19" width="204" height="47" />
+            <circle class="spot-fill" cx="300" cy="104" r="3" />
+            <path d="M240 139a60 60 0 0 0 120 0" />
+            <rect x="140" y="661" width="320" height="120" />
+            <rect x="198" y="734" width="204" height="47" />
+            <circle class="spot-fill" cx="300" cy="696" r="3" />
+            <path d="M240 661a60 60 0 0 1 120 0" />
+          </svg>
+          <div class="position-cells" id="positionCells"></div>
+        </div>
+        <div class="roster-foot"><p class="roster-status" id="rosterStatus" aria-live="polite">Изменения сохраняются только в этом браузере.</p></div>
+      </section>
+
+      <section class="roster-editor" id="rosterEditor" hidden aria-label="Форма игрока">
+        <form class="editor-form" id="rosterPlayerForm" hidden>
+          <h2 class="editor-title"><span id="editorTitle">Добавить игрока</span><button class="editor-close" id="editorClose" type="button" aria-label="Закрыть" data-i18n-aria="close">×</button></h2>
+          <label class="editor-field"><span data-i18n="playerName">Имя игрока</span><input type="text" name="name" maxlength="48" autocomplete="off" required></label>
+          <label class="editor-field"><span data-i18n="playerNumber">Номер игрока</span><input type="number" name="shirt_number" min="0" max="99" inputmode="numeric" required></label>
+          <label class="editor-field"><span data-i18n="playerPosition">Позиция</span><select name="position"><option value="GK" data-i18n="posGK">Вратарь · GK</option><option value="CB" data-i18n="posCB">Центральный защитник · CB</option><option value="CM" data-i18n="posCM">Центральный полузащитник · CM</option><option value="ST" data-i18n="posST">Нападающий · ST</option></select></label>
+          <label class="editor-check"><input type="checkbox" name="captain"><span data-i18n="captain">Капитан</span></label>
+          <div class="editor-actions"><button class="editor-button editor-save" type="submit" data-i18n="savePlayer">Сохранить игрока</button><button class="editor-button editor-delete" id="editorDeletePlayer" type="button" hidden data-i18n="deletePlayer">Удалить</button></div>
+          <p class="editor-message" id="editorSaveMessage" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="fixtures-section" aria-labelledby="fixtures-title">
+        <div class="fixtures-heading"><h2 id="fixtures-title" data-i18n="matchesTitle">Расписание матчей</h2><p data-i18n="matchesHint">Добавьте дату, когда она станет известна. Её можно изменить или удалить.</p></div>
+        <form class="match-editor" id="matchEditorForm">
+          <label class="match-field"><span data-i18n="matchHome">Первая команда</span><select id="matchHomeTeam" required></select></label>
+          <span class="match-vs" aria-hidden="true">VS</span>
+          <label class="match-field"><span data-i18n="matchAway">Вторая команда</span><select id="matchAwayTeam" required></select></label>
+          <label class="match-field match-field-date"><span data-i18n="matchDate">Дата матча (необязательно)</span><input id="matchDate" type="date"></label>
+          <button class="match-add" type="submit" data-i18n="addMatch">＋ Добавить матч</button>
+          <p class="match-status" id="matchStatus" aria-live="polite"></p>
+        </form>
+        <div class="fixtures-grid" id="fixturesGrid"></div>
+        <p class="fixtures-note" data-i18n="scheduleNote">Расписание сохраняется в этом браузере.</p>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    (() => {
+      const translations = {
+        ru: { pageMark:'Состав команды', heading:'Состав на поле', intro:'Выберите команду. Чтобы добавить игрока, нажмите карточку с плюсом на нужной позиции.', chooseTeam:'Выберите команду', fieldHint:'Нажмите «+», чтобы добавить игрока. Нажмите его карточку, чтобы изменить данные или удалить его.', fieldAria:'Схема состава команды', languageLabel:'Язык сайта', themeAria:'Сменить тему', themeDark:'Тёмная тема', themeLight:'Светлая тема', close:'Закрыть', manageRoster:'Управление составом', playerName:'Имя игрока', playerNumber:'Номер игрока', playerPosition:'Позиция', captain:'Капитан', savePlayer:'Сохранить игрока', deletePlayer:'Удалить игрока', addPlayer:'Добавить', empty:'Пока пусто', editorAdd:'Добавить игрока', editorEdit:'Изменить игрока', saved:'Изменения сохранены на этом устройстве.', duplicate:'Такой номер в этой команде уже есть.', deleteConfirm:'Удалить игрока из состава?', countOne:'игрок', countFew:'игрока', countMany:'игроков', gk:'Вратарь', cb:'Центральный защитник', cm:'Центральный полузащитник', st:'Нападающий', posGK:'Вратарь · GK', posCB:'Центральный защитник · CB', posCM:'Центральный полузащитник · CM', posST:'Нападающий · ST', localNote:'Изменения сохраняются только в этом браузере.', organizerLabel:'Организатор турнира', schoolName:'JIS International School', schoolLogoAlt:'Логотип JIS International School', matchesTitle:'Расписание матчей', matchesHint:'Добавьте дату матча, когда она станет известна. Её можно изменить или удалить.', dateTbd:'Дата уточняется', addDate:'Добавить дату', changeDate:'Изменить дату', calendar:'В календарь', removeDate:'Удалить дату', dateAria:'Дата матча против', scheduleNote:'Даты расписания сохраняются в этом браузере.' },
+        uz: { pageMark:'Jamoa tarkibi', heading:'Maydondagi tarkib', intro:'Jamoani tanlang. Futbolchi qo‘shish uchun kerakli pozitsiyadagi “+” kartasini bosing.', chooseTeam:'Jamoani tanlang', fieldHint:'Futbolchi qo‘shish uchun “+”ni bosing. Uni tahrirlash yoki o‘chirish uchun kartasini bosing.', fieldAria:'Jamoa tarkibi sxemasi', languageLabel:'Sayt tili', themeAria:'Mavzuni almashtirish', themeDark:'Qorong‘i mavzu', themeLight:'Yorug‘ mavzu', close:'Yopish', manageRoster:'Tarkibni boshqarish', playerName:'Futbolchi ismi', playerNumber:'Futbolchi raqami', playerPosition:'Pozitsiya', captain:'Jamoa sardori', savePlayer:'Futbolchini saqlash', deletePlayer:'O‘chirish', addPlayer:'Qo‘shish', empty:'Hozircha bo‘sh', editorAdd:'Futbolchi qo‘shish', editorEdit:'Futbolchini tahrirlash', saved:'O‘zgarishlar shu qurilmada saqlandi.', duplicate:'Bu raqam jamoada band.', deleteConfirm:'Futbolchini tarkibdan o‘chirasizmi?', countOne:'futbolchi', countFew:'futbolchi', countMany:'futbolchi', gk:'Darvozabon', cb:'Markaziy himoyachi', cm:'Markaziy yarim himoyachi', st:'Hujumchi', posGK:'Darvozabon · GK', posCB:'Markaziy himoyachi · CB', posCM:'Markaziy yarim himoyachi · CM', posST:'Hujumchi · ST', localNote:'O‘zgarishlar faqat shu brauzerda saqlanadi.', organizerLabel:'Turnir tashkilotchisi', schoolName:'JIS International School', schoolLogoAlt:'JIS International School logotipi', matchesTitle:'Uchrashuvlar jadvali', matchesHint:'O‘yin sanasi ma’lum bo‘lgach qo‘shing. Uni o‘zgartirish yoki o‘chirish mumkin.', dateTbd:'Sana aniqlanmoqda', addDate:'Sana qo‘shish', changeDate:'Sanani o‘zgartirish', calendar:'Taqvimga qo‘shish', removeDate:'Sanani o‘chirish', dateAria:'Uchrashuv sanasi', scheduleNote:'Sanalar shu brauzerda saqlanadi.' },
+        en: { pageMark:'Team line-up', heading:'Players on the pitch', intro:'Choose a team. To add a player, tap the plus card in the right position.', chooseTeam:'Choose a team', fieldHint:'Tap “+” to add a player. Tap their card to edit or remove them.', fieldAria:'Team line-up formation', languageLabel:'Site language', themeAria:'Change theme', themeDark:'Dark theme', themeLight:'Light theme', close:'Close', manageRoster:'Manage line-up', playerName:'Player name', playerNumber:'Player number', playerPosition:'Position', captain:'Team captain', savePlayer:'Save player', deletePlayer:'Remove player', addPlayer:'Add player', empty:'Empty slot', editorAdd:'Add player', editorEdit:'Edit player', saved:'Changes saved on this device.', duplicate:'That number is already used by this team.', deleteConfirm:'Remove this player from the line-up?', countOne:'player', countFew:'players', countMany:'players', gk:'Goalkeeper', cb:'Centre-back', cm:'Central midfielder', st:'Striker', posGK:'Goalkeeper · GK', posCB:'Centre-back · CB', posCM:'Central midfielder · CM', posST:'Striker · ST', localNote:'Changes are saved only in this browser.', organizerLabel:'Tournament organiser', schoolName:'JIS International School', schoolLogoAlt:'JIS International School logo', matchesTitle:'Match schedule', matchesHint:'Add a match date when it is confirmed. You can change or remove it later.', dateTbd:'Date to be confirmed', addDate:'Add date', changeDate:'Change date', calendar:'Add to calendar', removeDate:'Remove date', dateAria:'Match date versus', scheduleNote:'Schedule dates are saved in this browser.' }
+      };
+      Object.assign(translations.ru,{ourTeam:'Команда 1',opponentTeam:'Команда 2',pageMark:'Футбол · JIS',matchHome:'Первая команда',matchAway:'Вторая команда',matchDate:'Дата матча (необязательно)',addMatch:'＋ Добавить матч',deleteMatch:'Удалить матч',matchReady:'Выберите две команды и добавьте матч.',matchSaved:'Матч и дата сохранены на этом устройстве.',storageError:'Не удалось сохранить. Проверьте хранилище браузера.',sameTeamError:'Выберите две разные команды.',emptySchedule:'Матчей пока нет — добавьте первую пару выше.',matchesHint:'Выберите команды, которые сыграют друг с другом, и добавьте матч в расписание.',scheduleNote:'Матчи и даты сохраняются в этом браузере.'});
+      Object.assign(translations.uz,{ourTeam:'1-jamoa',opponentTeam:'2-jamoa',pageMark:'Futbol · JIS',matchHome:'Birinchi jamoa',matchAway:'Ikkinchi jamoa',matchDate:'O‘yin sanasi (ixtiyoriy)',addMatch:'＋ Uchrashuv qo‘shish',deleteMatch:'Uchrashuvni o‘chirish',matchReady:'Ikki jamoani tanlab, uchrashuv qo‘shing.',matchSaved:'Uchrashuv va sana shu qurilmada saqlandi.',storageError:'Saqlab bo‘lmadi. Brauzer xotirasini tekshiring.',sameTeamError:'Ikkita boshqa jamoani tanlang.',emptySchedule:'Hozircha uchrashuv yo‘q — yuqorida birinchi juftlikni qo‘shing.',matchesHint:'O‘zaro o‘ynaydigan jamoalarni tanlang va uchrashuvni jadvalga qo‘shing.',scheduleNote:'Uchrashuvlar va sanalar shu brauzerda saqlanadi.'});
+      Object.assign(translations.en,{ourTeam:'Team 1',opponentTeam:'Team 2',pageMark:'JIS · Football',matchHome:'First team',matchAway:'Second team',matchDate:'Match date (optional)',addMatch:'＋ Add match',deleteMatch:'Remove match',matchReady:'Choose two teams to add a match.',matchSaved:'Match and date saved on this device.',storageError:'Could not save. Check browser storage settings.',sameTeamError:'Choose two different teams.',emptySchedule:'No matches yet. Add the first fixture above.',matchesHint:'Choose the teams playing each other and add the match to the schedule.',scheduleNote:'Matches and dates are saved in this browser.'});
+      const root = document.documentElement;
+      const langButtons = [...document.querySelectorAll('[data-language]')];
+      const matchTeams = ['Apex Eleven','Dream Team','Legends','FC Invictus','Royal Force'];
+      const matchStorageKey = 'team-match-schedule-v2';
+      const oldFixtureIds = { 'Dream Team':'dream', 'Legends':'legends', 'FC Invictus':'invictus', 'Royal Force':'royal-force' };
+      const defaultMatchups = ['Dream Team','Legends','FC Invictus','Royal Force'];
+      const matchForm = document.getElementById('matchEditorForm');
+      const homeSelect = document.getElementById('matchHomeTeam');
+      const awaySelect = document.getElementById('matchAwayTeam');
+      const matchDateInput = document.getElementById('matchDate');
+      const fixturesGrid = document.getElementById('fixturesGrid');
+      const matchStatus = document.getElementById('matchStatus');
+      let fixtures = [];
+      let scheduleStatusKey = 'matchReady';
+      const newMatchId = () => globalThis.crypto?.randomUUID?.() || `match-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      const normalizeMatch = (item,index) => {
+        if (!item || !matchTeams.includes(item.home) || !matchTeams.includes(item.away) || item.home === item.away) return null;
+        const date = typeof item.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(item.date) ? item.date : '';
+        return { id:String(item.id || `match-${index+1}`), home:item.home, away:item.away, date };
+      };
+      const legacyDefaults = () => {
+        let oldDates = {};
+        try {
+          const parsed = JSON.parse(localStorage.getItem('team-match-dates-v1') || '{}');
+          if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) oldDates = parsed;
+        } catch {}
+        return defaultMatchups.map((away,index) => {
+          const oldId = oldFixtureIds[away];
+          let date = '';
+          try { date = Object.prototype.hasOwnProperty.call(oldDates,oldId) ? oldDates[oldId] : (localStorage.getItem(`apex-fixture-${oldId}`) || ''); } catch {}
+          return { id:`legacy-${oldId}-${index}`, home:'Apex Eleven', away, date:typeof date === 'string' ? date : '' };
+        });
+      };
+      try {
+        const savedSchedule = localStorage.getItem(matchStorageKey);
+        if (savedSchedule !== null) {
+          const parsed = JSON.parse(savedSchedule);
+          fixtures = Array.isArray(parsed) ? parsed.map(normalizeMatch).filter(Boolean) : [];
+        } else fixtures = legacyDefaults();
+      } catch { fixtures = legacyDefaults(); scheduleStatusKey = 'storageError'; }
+      matchTeams.forEach((team) => {
+        const homeOption = document.createElement('option');
+        homeOption.value = team;
+        homeOption.textContent = team;
+        homeSelect.append(homeOption);
+        const awayOption = document.createElement('option');
+        awayOption.value = team;
+        awayOption.textContent = team;
+        awaySelect.append(awayOption);
+      });
+      homeSelect.value = 'Apex Eleven';
+      awaySelect.value = 'Dream Team';
+      const saveFixtures = () => { try { localStorage.setItem(matchStorageKey,JSON.stringify(fixtures)); return true; } catch { return false; } };
+      const setScheduleStatus = (key) => {
+        scheduleStatusKey = key;
+        if (matchStatus) matchStatus.textContent = translations[language]?.[key] || translations.ru[key] || '';
+      };
+      const localeForLanguage = () => language === 'ru' ? 'ru-RU' : language === 'uz' ? 'uz-UZ' : 'en-US';
+      const displayDate = (value) => {
+        if (!value) return translations[language].dateTbd;
+        const [year,month,day] = value.split('-').map(Number);
+        return new Intl.DateTimeFormat(localeForLanguage(),{ day:'numeric',month:'long',year:'numeric' }).format(new Date(year,month-1,day));
+      };
+      const makeElement = (tag,className,text) => {
+        const element = document.createElement(tag);
+        if (className) element.className = className;
+        if (text !== undefined) element.textContent = text;
+        return element;
+      };
+      const exportMatchCalendar = (match) => {
+        if (!match.date) return;
+        const [year,month,day] = match.date.split('-').map(Number);
+        const finish = new Date(year,month-1,day+1);
+        const finishDate = `${finish.getFullYear()}${String(finish.getMonth()+1).padStart(2,'0')}${String(finish.getDate()).padStart(2,'0')}`;
+        const icsEscape = (value) => value.replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\n/g,'\\n');
+        const toIcsDate = (value) => value.replace(/-/g,'');
+        const eventText = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//JIS Football//Match Schedule//EN','CALSCALE:GREGORIAN','BEGIN:VEVENT',`UID:${match.id}@jis-football`,`DTSTAMP:${new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'')}`,`DTSTART;VALUE=DATE:${toIcsDate(match.date)}`,`DTEND;VALUE=DATE:${finishDate}`,`SUMMARY:${icsEscape(`${match.home} vs ${match.away}`)}`,`DESCRIPTION:${icsEscape(`${match.home} vs ${match.away}`)}`,'END:VEVENT','END:VCALENDAR'].join('\r\n');
+        const url = URL.createObjectURL(new Blob([eventText],{type:'text/calendar;charset=utf-8'}));
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${match.home.replace(/\s+/g,'-')}-vs-${match.away.replace(/\s+/g,'-')}.ics`;
+        link.click();
+        window.setTimeout(() => URL.revokeObjectURL(url),1000);
+      };
+      const renderFixtures = () => {
+        fixturesGrid.replaceChildren();
+        if (!fixtures.length) fixturesGrid.append(makeElement('div','fixture-empty',translations[language].emptySchedule));
+        fixtures.forEach((match,index) => {
+          const card = makeElement('article','fixture-card');
+          const teamBlock = makeElement('div','fixture-team');
+          teamBlock.append(makeElement('span','fixture-number',String(index+1).padStart(2,'0')));
+          const main = makeElement('div','fixture-main');
+          const matchup = makeElement('div','fixture-matchup');
+          const home = makeElement('div','fixture-club fixture-home');
+          home.append(makeElement('span','fixture-side-label',translations[language].ourTeam),makeElement('h3','',match.home));
+          const vs = makeElement('span','fixture-vs','VS');
+          vs.setAttribute('aria-hidden','true');
+          const away = makeElement('div','fixture-club');
+          away.append(makeElement('span','fixture-side-label',translations[language].opponentTeam),makeElement('h3','',match.away));
+          matchup.append(home,vs,away);
+          const dateState = makeElement('time','fixture-state',displayDate(match.date));
+          main.append(matchup,dateState);
+          teamBlock.append(main);
+          const tools = makeElement('div','fixture-tools');
+          const dateLabel = makeElement('label','date-picker');
+          dateLabel.append(makeElement('span','',match.date ? translations[language].changeDate : translations[language].addDate));
+          const dateInput = makeElement('input');
+          dateInput.type = 'date';
+          dateInput.value = match.date;
+          dateInput.setAttribute('aria-label',`${translations[language].dateAria} ${match.home} vs ${match.away}`);
+          dateInput.addEventListener('change',() => {
+            match.date = dateInput.value;
+            const saved = saveFixtures();
+            renderFixtures();
+            setScheduleStatus(saved ? 'matchSaved' : 'storageError');
+          });
+          dateLabel.append(dateInput);
+          tools.append(dateLabel);
+          if (match.date) {
+            const calendarButton = makeElement('button','calendar-add',translations[language].calendar);
+            calendarButton.type = 'button';
+            calendarButton.addEventListener('click',() => exportMatchCalendar(match));
+            const removeDateButton = makeElement('button','remove-date',translations[language].removeDate);
+            removeDateButton.type = 'button';
+            removeDateButton.addEventListener('click',() => {
+              match.date = '';
+              const saved = saveFixtures();
+              renderFixtures();
+              setScheduleStatus(saved ? 'matchSaved' : 'storageError');
+            });
+            tools.append(calendarButton,removeDateButton);
+          }
+          const removeMatchButton = makeElement('button','remove-match',translations[language].deleteMatch);
+          removeMatchButton.type = 'button';
+          removeMatchButton.addEventListener('click',() => {
+            fixtures = fixtures.filter((item) => item.id !== match.id);
+            const saved = saveFixtures();
+            renderFixtures();
+            setScheduleStatus(saved ? 'matchSaved' : 'storageError');
+          });
+          tools.append(removeMatchButton);
+          card.append(teamBlock,tools);
+          fixturesGrid.append(card);
+        });
+        setScheduleStatus(scheduleStatusKey);
+      };
+      matchForm.addEventListener('submit',(event) => {
+        event.preventDefault();
+        if (homeSelect.value === awaySelect.value) { setScheduleStatus('sameTeamError'); return; }
+        fixtures.push({ id:newMatchId(), home:homeSelect.value, away:awaySelect.value, date:matchDateInput.value || '' });
+        matchDateInput.value = '';
+        const saved = saveFixtures();
+        renderFixtures();
+        setScheduleStatus(saved ? 'matchSaved' : 'storageError');
+      });
+      let savedLanguage = 'ru';
+      let theme = '';
+      try { savedLanguage = localStorage.getItem('team-language') || 'ru'; theme = localStorage.getItem('team-theme') || ''; } catch {}
+      let language = ['ru','uz','en'].includes(savedLanguage) ? savedLanguage : 'ru';
+      if (theme === 'dark') root.dataset.theme = 'dark';
+      const setLanguage = (next) => {
+        language = translations[next] ? next : 'ru';
+        root.lang = language;
+        document.title = translations[language].heading;
+        document.querySelectorAll('[data-i18n]').forEach((element) => { const text = translations[language][element.dataset.i18n]; if (text) element.textContent = text; });
+        document.querySelectorAll('[data-i18n-aria]').forEach((element) => { const text = translations[language][element.dataset.i18nAria]; if (text) element.setAttribute('aria-label', text); });
+        document.querySelectorAll('[data-i18n-alt]').forEach((element) => { const text = translations[language][element.dataset.i18nAlt]; if (text) element.setAttribute('alt', text); });
+        langButtons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.language === language)));
+        document.getElementById('themeLabel').textContent = root.dataset.theme === 'dark' ? translations[language].themeLight : translations[language].themeDark;
+        renderFixtures();
+        try { localStorage.setItem('team-language', language); } catch {}
+        window.dispatchEvent(new CustomEvent('apex-language-change', { detail: language }));
+      };
+      langButtons.forEach((button) => button.addEventListener('click', () => setLanguage(button.dataset.language)));
+      document.getElementById('themeToggle').addEventListener('click', () => {
+        if (root.dataset.theme === 'dark') { delete root.dataset.theme; try { localStorage.setItem('team-theme','light'); } catch {} }
+        else { root.dataset.theme = 'dark'; try { localStorage.setItem('team-theme','dark'); } catch {} }
+        document.getElementById('themeLabel').textContent = root.dataset.theme === 'dark' ? translations[language].themeLight : translations[language].themeDark;
+      });
+      document.addEventListener('click', (event) => {
+        const add = event.target.closest('[data-add-position]');
+        if (add) window.dispatchEvent(new CustomEvent('apex-add-position', { detail:add.dataset.addPosition }));
+        const edit = event.target.closest('[data-edit-player]');
+        if (edit) window.dispatchEvent(new CustomEvent('apex-edit-player', { detail:edit.dataset.editPlayer }));
+      });
+      setLanguage(language);
+    })();
+  </script>
+  <script src="./roster-admin.js"></script>
+</body>
+</html>
+
